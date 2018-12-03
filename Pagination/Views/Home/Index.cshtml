@@ -1,0 +1,217 @@
+﻿@{
+    Layout = null;
+}
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <title>jQuery Pagination</title>
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <link href="~/CSS/PaginationWithSearch.css" rel="stylesheet" />
+    <script src="~/js/PaginationWithSearch.js"></script>
+    <style>
+        .HdnPgItm {
+            display: none;
+        }
+
+        .PgnActive {
+            border: 1px solid red;
+        }
+
+        .PgnBtnDsbld {
+            border: 1px solid blue;
+        }
+    </style>
+</head>
+<body>
+    <div id="contents">
+        <div>This Is Number 1</div>
+        <div>This Is Number 2</div>
+        <div>This Is Number 3</div>
+        <div>This Is Number 4</div>
+        <div>This Is Number 5</div>
+        <div>This Is Number 6</div>
+        <div>This Is Number 7</div>
+        <div>This Is Number 8</div>
+        <div>This Is Number 9</div>
+        <div>This Is Number 10</div>
+        <div>This Is Number 11</div>
+        <div>This Is Number 12</div>
+        <div>This Is Number 13</div>
+        <div>This Is Number 14</div>
+        <div>This Is Number 15</div>
+        <div>This Is Number 16</div>
+        <div>This Is Number 17</div>
+        <div>This Is Number 18</div>
+        <div>This Is Number 19</div>
+        <div>This Is Number 20</div>
+        <div>This Is Number 21</div>
+        <div>This Is Number 22</div>
+        <div>This Is Number 23</div>
+        <div>This Is Number 24</div>
+        <div>This Is Number 25</div>
+        <div>This Is Number 26</div>
+        <div>This Is Number 27</div>
+        <div>This Is Number 28</div>
+        <div>This Is Number 29</div>
+        <div>This Is Number 30</div>
+    </div>
+
+    <script>
+        PaginationWithSearch({
+            ContentID:"contents",
+            NumberOfItemPerPage: 10,
+            NumberOfItemInPaginationNav :5
+        });
+
+        function PaginationWithSearch(PaginationObject) {
+            debugger
+            $("<div id=" + PaginationObject.ContentID + "PaginationNavBar" + "><div>").insertAfter("#" + PaginationObject.ContentID);
+            var NumberOfItemPerPage = PaginationObject.NumberOfItemPerPage;
+            var NumnerOfItemInPaginationNav = PaginationObject.NumberOfItemInPaginationNav;
+            var NumberOfItems = $("#" + PaginationObject.ContentID).children().length;
+            var NumberOfItemsInPaninationNavNeeded = NumberOfItems / NumberOfItemPerPage;
+            $("#" + PaginationObject.ContentID).children().each(function (rev, element) {
+                if ((rev + 1) > NumberOfItemPerPage) {
+                    $(element).addClass("HdnPgItm");
+                }
+                $(element).attr("data-Index",rev+1)
+            })
+            if (NumberOfItemsInPaninationNavNeeded > NumnerOfItemInPaginationNav) {
+                $("#" + PaginationObject.ContentID + "PaginationNavBar").empty();
+                $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span class=\"DfltPgnBtn PgnBtnDsbld\" onclick=\"PgnPreBtn(event)\">" + "Previous" + "</span>");
+                $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span data-Index=" + 1 + " onclick=\"ChangePage(event)\" class=\"PgnActive\">" + 1 + "</span>");
+                for (var i = 2; i <= NumberOfItemsInPaninationNavNeeded; i++) {
+                    if (i > NumnerOfItemInPaginationNav) {
+                        $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span data-Index=" + i + " onclick=\"ChangePage(event)\" class=\"HdnPgItm\">" + i + "</span>");
+                    }
+                    else {
+                        $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span data-Index=" + i + " onclick=\"ChangePage(event)\">" + i + "</span>");
+                    }
+                }
+                $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span class=\"DfltPgnBtn\" onclick=\"PgnNxtBtn(event)\">" + "Next" + "</span>");
+            }
+            else {
+                $("#" + PaginationObject.ContentID + "PaginationNavBar").empty();
+                $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span class=\"DfltPgnBtn PgnBtnDsbld\" onclick=\"PgnPreBtn(event)\">" + "Previous" + "</span>");
+                $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span data-Index=\"1\" onclick=\"ChangePage(event)\"  class=\"PgnActive\">1</span>")
+                for (var i = 2; i <= NumberOfItemsInPaninationNavNeeded; i++) {
+                    $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span data-Index=" + i + " onclick=\"ChangePage(event)\">" + i + "</span>")
+                }
+                $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span class=\"DfltPgnBtn\" onclick=\"PgnNxtBtn(event)\">" + "Next" + "</span>");
+            }
+        }
+
+        function ChangePage(ClickedOn) {
+
+            var Element = ClickedOn.target;
+            $(Element).siblings().removeClass("PgnActive");
+            $(Element).addClass("PgnActive");
+            var SelectedPage = $(Element).attr("data-Index");
+            SetPageReadyFor(Element, SelectedPage);
+        }
+
+        function SetPageReadyFor(Element, SelectedPage) {
+            debugger
+            var TotalNumberOfElements = $(Element).parent().prev().children().length;
+            var TotalNumberOfHiddenElements = $(Element).parent().prev().children(".HdnPgItm").length;
+            var TotalVisible = TotalNumberOfElements - TotalNumberOfHiddenElements;
+            var Totalitm = $(Element).parent().children('span:not(.DfltPgnBtn)').length;
+            var From = (TotalVisible * (SelectedPage - 1)) + 1;
+            var To = From + (TotalVisible - 1);
+            $(Element).parent().prev().children().addClass("HdnPgItm");
+            $(Element).parent().prev().children().each(function (index, element) {
+                if ((index + 1) <= To && (index + 1) >= From) {
+                    $(this).removeClass("HdnPgItm");
+                }
+            });
+            if (SelectedPage == 1) {
+                $(Element).prev(".DfltPgnBtn").addClass("PgnBtnDsbld");
+            }
+            else {
+                $(Element).siblings().prev(".DfltPgnBtn").removeClass("PgnBtnDsbld");
+            }
+
+            if (Totalitm == SelectedPage) {
+                $(Element).next(".DfltPgnBtn").addClass("PgnBtnDsbld");
+            }
+            else {
+                $(Element).siblings().next(".DfltPgnBtn").removeClass("PgnBtnDsbld");
+            }
+        }
+
+        function PgnNxtBtn(event) {
+            var Element = event.target;
+            if (!$(Element).hasClass("PgnBtnDsbld")) {
+                var Active = parseInt($(Element).siblings(".PgnActive").attr("data-Index"));
+                $(Element).siblings().prev(".DfltPgnBtn").removeClass("PgnBtnDsbld");
+                var Totalitm = $(Element).parent().children('span:not(.DfltPgnBtn)').length;
+                $(Element).siblings().removeClass("PgnActive");
+                $(Element).siblings('[data-Index=' + (Active + 1) + ']').addClass("PgnActive");
+                SetPageReadyFor(Element, Active + 1);
+                if ($(Element).siblings('[data-Index=' + (Active + 1) + ']').hasClass("HdnPgItm")) {
+                    SetNxtPgnNavBar(Element, Active + 1);
+                }
+                if ((Totalitm - 1) == Active) {
+                    $(Element).siblings().next(".DfltPgnBtn").addClass("PgnBtnDsbld");
+                }
+                else {
+                    $(Element).siblings().next(".DfltPgnBtn").removeClass("PgnBtnDsbld");
+                }
+            }
+        }
+        function PgnPreBtn(event) {
+            var Element = event.target;
+            if (!$(Element).hasClass("PgnBtnDsbld")) {
+                var Active = parseInt($(Element).siblings(".PgnActive").attr("data-Index"));
+                $(Element).siblings().next(".DfltPgnBtn").removeClass("PgnBtnDsbld");
+                $(Element).siblings().removeClass("PgnActive");
+                $(Element).siblings('[data-Index=' + (Active - 1) + ']').addClass("PgnActive");
+                SetPageReadyFor(Element, Active - 1);
+                if ($(Element).siblings('[data-Index=' + (Active - 1) + ']').hasClass("HdnPgItm")) {
+                    SetPrePgnNavBar(Element, Active - 1);
+                }
+                if ((Active - 1) == 1) {
+                    $(Element).siblings().prev(".DfltPgnBtn").addClass("PgnBtnDsbld");
+                } else {
+                    $(Element).siblings().prev(".DfltPgnBtn").removeClass("PgnBtnDsbld");
+                }
+            }
+
+        }
+
+        function SetNxtPgnNavBar(Element, SelectedPage) {
+
+            console.log($(Element).parent().children())
+            var TotalNumberOfElements = $(Element).parent().children('span:not(.DfltPgnBtn)').length;
+            var TotalNumberOfHiddenElements = $(Element).parent().children(".HdnPgItm").length;
+            var TotalVisible = TotalNumberOfElements - TotalNumberOfHiddenElements;
+            var From = SelectedPage;
+            var To = SelectedPage + (TotalVisible - 1);
+            $(Element).parent().children('span:not(.DfltPgnBtn)').addClass("HdnPgItm");
+            $(Element).parent().children('span:not(.DfltPgnBtn)').each(function (index, element) {
+                if ((index + 1) <= To && (index + 1) >= From) {
+                    $(this).removeClass("HdnPgItm");
+                }
+            });
+        }
+        function SetPrePgnNavBar(Element, SelectedPage) {
+
+            console.log($(Element).parent().children())
+            var TotalNumberOfElements = $(Element).parent().children('span:not(.DfltPgnBtn)').length;
+            var TotalNumberOfHiddenElements = $(Element).parent().children(".HdnPgItm").length;
+            var TotalVisible = TotalNumberOfElements - TotalNumberOfHiddenElements;
+            var From = SelectedPage - (TotalVisible);
+            var To = SelectedPage ;
+            $(Element).parent().children('span:not(.DfltPgnBtn)').addClass("HdnPgItm");
+            $(Element).parent().children('span:not(.DfltPgnBtn)').each(function (index, element) {
+                if ((index + 1) <= To && (index + 1) >= From) {
+                    $(this).removeClass("HdnPgItm");
+                }
+            });
+        }
+
+
+    </script>
+</body>
+</html>
+
