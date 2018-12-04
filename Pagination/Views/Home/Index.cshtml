@@ -7,7 +7,6 @@
     <title>jQuery Pagination</title>
     <script src="~/Scripts/jquery-1.10.2.min.js"></script>
     <link href="~/CSS/PaginationWithSearch.css" rel="stylesheet" />
-    <script src="~/js/PaginationWithSearch.js"></script>
     <style>
         .HdnPgItm {
             display: none;
@@ -20,13 +19,21 @@
         .PgnBtnDsbld {
             border: 1px solid blue;
         }
+        .Unselect {
+           -moz-user-select: none;
+           -webkit-user-select: none;
+           -ms-user-select:none;
+           user-select:none;
+           -o-user-select:none
+        }
     </style>
 </head>
 <body>
+    <input type="text" placeholder="search" id="SearchBox"/>
     <div id="contents">
-        <div>This Is Number 1</div>
-        <div>This Is Number 2</div>
-        <div>This Is Number 3</div>
+        <div data-Value="1">This Is Number 1</div>
+        <div data-Value="1">This Is Number 2</div>
+        <div data-Value="1">This Is Number 3</div>
         <div>This Is Number 4</div>
         <div>This Is Number 5</div>
         <div>This Is Number 6</div>
@@ -57,65 +64,96 @@
     </div>
 
     <script>
-        PaginationWithSearch({
+        PaginationWithSearch({    
             ContentID:"contents",
-            NumberOfItemPerPage: 10,
-            NumberOfItemInPaginationNav :5
+            UserNumberOfItemVisiblePerPage: 4,
+            NumberOfItemInPaginationNav :4
         });
 
-        function PaginationWithSearch(PaginationObject) {
-            debugger
-            $("<div id=" + PaginationObject.ContentID + "PaginationNavBar" + "><div>").insertAfter("#" + PaginationObject.ContentID);
-            var NumberOfItemPerPage = PaginationObject.NumberOfItemPerPage;
-            var NumnerOfItemInPaginationNav = PaginationObject.NumberOfItemInPaginationNav;
-            var NumberOfItems = $("#" + PaginationObject.ContentID).children().length;
-            var NumberOfItemsInPaninationNavNeeded = NumberOfItems / NumberOfItemPerPage;
-            $("#" + PaginationObject.ContentID).children().each(function (rev, element) {
-                if ((rev + 1) > NumberOfItemPerPage) {
-                    $(element).addClass("HdnPgItm");
-                }
-                $(element).attr("data-Index",rev+1)
-            })
-            if (NumberOfItemsInPaninationNavNeeded > NumnerOfItemInPaginationNav) {
-                $("#" + PaginationObject.ContentID + "PaginationNavBar").empty();
-                $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span class=\"DfltPgnBtn PgnBtnDsbld\" onclick=\"PgnPreBtn(event)\">" + "Previous" + "</span>");
-                $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span data-Index=" + 1 + " onclick=\"ChangePage(event)\" class=\"PgnActive\">" + 1 + "</span>");
-                for (var i = 2; i <= NumberOfItemsInPaninationNavNeeded; i++) {
-                    if (i > NumnerOfItemInPaginationNav) {
-                        $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span data-Index=" + i + " onclick=\"ChangePage(event)\" class=\"HdnPgItm\">" + i + "</span>");
-                    }
-                    else {
-                        $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span data-Index=" + i + " onclick=\"ChangePage(event)\">" + i + "</span>");
-                    }
-                }
-                $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span class=\"DfltPgnBtn\" onclick=\"PgnNxtBtn(event)\">" + "Next" + "</span>");
+        function PaginationWithSearch(PaginationObject) {                    
+            var searchId = PaginationObject.SearchBoxId;
+            if (searchId != undefined && searchId != null && searchId != "") {
+                var SearchText = $("#" + PaginationObject.SearchBoxId).val().toLowerCase().trim();               
             }
             else {
-                $("#" + PaginationObject.ContentID + "PaginationNavBar").empty();
-                $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span class=\"DfltPgnBtn PgnBtnDsbld\" onclick=\"PgnPreBtn(event)\">" + "Previous" + "</span>");
-                $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span data-Index=\"1\" onclick=\"ChangePage(event)\"  class=\"PgnActive\">1</span>")
-                for (var i = 2; i <= NumberOfItemsInPaninationNavNeeded; i++) {
-                    $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span data-Index=" + i + " onclick=\"ChangePage(event)\">" + i + "</span>")
-                }
-                $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span class=\"DfltPgnBtn\" onclick=\"PgnNxtBtn(event)\">" + "Next" + "</span>");
-            }
+                $("#" + PaginationObject.ContentID).children().each(function (rev, element) {
+                    $(element).addClass("ItmActive");
+                })
+                Pagination({
+                    ContentID: PaginationObject.ContentID,
+                    UserNumberOfItemVisiblePerPage: PaginationObject.UserNumberOfItemVisiblePerPage,
+                    NumberOfItemInPaginationNav: PaginationObject.NumberOfItemInPaginationNav
+                });
+            }            
         }
+        function Pagination(PaginationObject) {
+            
+            $("<div id=" + PaginationObject.ContentID + "PaginationNavBar" + " class=\"Unselect\" unselectable=\"on\" onselectstart=\"return false;\" onmousedown=\"return false;\"><div>").insertAfter("#" + PaginationObject.ContentID);
+            //Data Passed By User
+            var UserNumberOfItemVisiblePerPage = PaginationObject.UserNumberOfItemVisiblePerPage;
+            var UserNumberOfItemsInVisibleInPaginationNav = PaginationObject.NumberOfItemInPaginationNav;
+                                
+            var ActualNumberOfItemsShownInNavBar = 0;
+            var ActualNumberOfItemsShown = 0;
+            var NumberOfItemsInPaninationNavNeeded = 0;
 
-        function ChangePage(ClickedOn) {
+            var NumberOfItems = $("#" + PaginationObject.ContentID).children(".ItmActive").length;
 
-            var Element = ClickedOn.target;
+            //Calculating NavBar and Items for Pagination
+            if (UserNumberOfItemVisiblePerPage < NumberOfItems)
+            {
+                ActualNumberOfItemsShown = UserNumberOfItemVisiblePerPage;
+                NumberOfItemsInPaninationNavNeeded = Math.ceil(NumberOfItems / UserNumberOfItemVisiblePerPage);
+            }
+            else
+            {
+                ActualNumberOfItemsShown = NumberOfItems;
+                NumberOfItemsInPaninationNavNeeded = 1;
+            }
+            if (UserNumberOfItemsInVisibleInPaginationNav > NumberOfItemsInPaninationNavNeeded) {
+                ActualNumberOfItemsShownInNavBar = NumberOfItemsInPaninationNavNeeded;
+            }
+            else
+            {
+                ActualNumberOfItemsShownInNavBar = UserNumberOfItemsInVisibleInPaginationNav;
+            }
+            $("#" + PaginationObject.ContentID).children(".ItmActive").each(function (rev, element) {
+                if ((rev + 1) > ActualNumberOfItemsShown) {
+                    $(element).addClass("HdnPgItm");
+                }
+                $(element).attr("data-Index", rev + 1)
+            });
+            $("#" + PaginationObject.ContentID + "PaginationNavBar").empty();
+            $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span class=\"DfltPgnBtn PgnBtnDsbld\" onclick=\"PgnPreBtn(event," + NumberOfItems + "," + ActualNumberOfItemsShown + "," + NumberOfItemsInPaninationNavNeeded  + "," + ActualNumberOfItemsShownInNavBar+")\">" + "Previous" + "</span>");
+            $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span data-Index=" + 1 + " onclick=\"ChangePage(event," + NumberOfItems + "," + ActualNumberOfItemsShown + "," + NumberOfItemsInPaninationNavNeeded + "," + ActualNumberOfItemsShownInNavBar +")\" class=\"PgnActive\">" + 1 + "</span>");
+            var CountVisible = 1;
+            for (var i = 2; i <= NumberOfItemsInPaninationNavNeeded; i++) {
+                if (i > ActualNumberOfItemsShownInNavBar) {
+                    $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span data-Index=" + i + " onclick=\"ChangePage(event," + NumberOfItems + "," + ActualNumberOfItemsShown + "," + NumberOfItemsInPaninationNavNeeded + "," + ActualNumberOfItemsShownInNavBar +")\" class=\"HdnPgItm\">" + i + "</span>");
+                }
+                else {
+                    CountVisible++;
+                    $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span data-Index=" + i + " onclick=\"ChangePage(event," + NumberOfItems + "," + ActualNumberOfItemsShown + "," + NumberOfItemsInPaninationNavNeeded + "," + ActualNumberOfItemsShownInNavBar +")\">" + i + "</span>");
+                }
+               
+            }
+            
+            if (NumberOfItemsInPaninationNavNeeded == 1) {
+                $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span class=\"DfltPgnBtn PgnBtnDsbld\" onclick=\"PgnNxtBtn(event," + NumberOfItems + "," + ActualNumberOfItemsShown + "," + NumberOfItemsInPaninationNavNeeded + "," + ActualNumberOfItemsShownInNavBar +")\">" + "Next" + "</span>");
+            }
+            else {
+                $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span class=\"DfltPgnBtn\" onclick=\"PgnNxtBtn(event," + NumberOfItems + "," + ActualNumberOfItemsShown + "," + NumberOfItemsInPaninationNavNeeded + "," + ActualNumberOfItemsShownInNavBar +")\">" + "Next" + "</span>");
+            }           
+        }
+        function ChangePage(event, TotalItem, TotalVisibleItem, TotalItemInNav, TotalVisibleItemInNav) {
+            
+            var Element = event.target;
             $(Element).siblings().removeClass("PgnActive");
             $(Element).addClass("PgnActive");
             var SelectedPage = $(Element).attr("data-Index");
-            SetPageReadyFor(Element, SelectedPage);
+            SetPageReadyFor(Element, SelectedPage, TotalVisibleItem, TotalItemInNav);
         }
-
-        function SetPageReadyFor(Element, SelectedPage) {
-            debugger
-            var TotalNumberOfElements = $(Element).parent().prev().children().length;
-            var TotalNumberOfHiddenElements = $(Element).parent().prev().children(".HdnPgItm").length;
-            var TotalVisible = TotalNumberOfElements - TotalNumberOfHiddenElements;
-            var Totalitm = $(Element).parent().children('span:not(.DfltPgnBtn)').length;
+        function SetPageReadyFor(Element, SelectedPage, TotalVisible,Total) {
             var From = (TotalVisible * (SelectedPage - 1)) + 1;
             var To = From + (TotalVisible - 1);
             $(Element).parent().prev().children().addClass("HdnPgItm");
@@ -130,16 +168,15 @@
             else {
                 $(Element).siblings().prev(".DfltPgnBtn").removeClass("PgnBtnDsbld");
             }
-
-            if (Totalitm == SelectedPage) {
+            if (Total == SelectedPage) {
                 $(Element).next(".DfltPgnBtn").addClass("PgnBtnDsbld");
             }
             else {
                 $(Element).siblings().next(".DfltPgnBtn").removeClass("PgnBtnDsbld");
             }
         }
-
-        function PgnNxtBtn(event) {
+        function PgnNxtBtn(event, TotalItem, TotalVisibleItem, TotalItemInNav, TotalVisibleItemInNav) {
+            debugger
             var Element = event.target;
             if (!$(Element).hasClass("PgnBtnDsbld")) {
                 var Active = parseInt($(Element).siblings(".PgnActive").attr("data-Index"));
@@ -147,9 +184,9 @@
                 var Totalitm = $(Element).parent().children('span:not(.DfltPgnBtn)').length;
                 $(Element).siblings().removeClass("PgnActive");
                 $(Element).siblings('[data-Index=' + (Active + 1) + ']').addClass("PgnActive");
-                SetPageReadyFor(Element, Active + 1);
+                SetPageReadyFor(Element, Active + 1, TotalVisibleItem, TotalItemInNav);
                 if ($(Element).siblings('[data-Index=' + (Active + 1) + ']').hasClass("HdnPgItm")) {
-                    SetNxtPgnNavBar(Element, Active + 1);
+                    SetNxtPgnNavBar(Element, Active + 1, TotalVisibleItemInNav);
                 }
                 if ((Totalitm - 1) == Active) {
                     $(Element).siblings().next(".DfltPgnBtn").addClass("PgnBtnDsbld");
@@ -159,16 +196,17 @@
                 }
             }
         }
-        function PgnPreBtn(event) {
+        function PgnPreBtn(event, TotalItem, TotalVisibleItem, TotalItemInNav, TotalVisibleItemInNav) {
+            debugger
             var Element = event.target;
             if (!$(Element).hasClass("PgnBtnDsbld")) {
                 var Active = parseInt($(Element).siblings(".PgnActive").attr("data-Index"));
                 $(Element).siblings().next(".DfltPgnBtn").removeClass("PgnBtnDsbld");
                 $(Element).siblings().removeClass("PgnActive");
                 $(Element).siblings('[data-Index=' + (Active - 1) + ']').addClass("PgnActive");
-                SetPageReadyFor(Element, Active - 1);
+                SetPageReadyFor(Element, Active - 1, TotalVisibleItem, TotalItemInNav);
                 if ($(Element).siblings('[data-Index=' + (Active - 1) + ']').hasClass("HdnPgItm")) {
-                    SetPrePgnNavBar(Element, Active - 1);
+                    SetPrePgnNavBar(Element, Active -1, TotalVisibleItemInNav);
                 }
                 if ((Active - 1) == 1) {
                     $(Element).siblings().prev(".DfltPgnBtn").addClass("PgnBtnDsbld");
@@ -179,12 +217,8 @@
 
         }
 
-        function SetNxtPgnNavBar(Element, SelectedPage) {
-
-            console.log($(Element).parent().children())
-            var TotalNumberOfElements = $(Element).parent().children('span:not(.DfltPgnBtn)').length;
-            var TotalNumberOfHiddenElements = $(Element).parent().children(".HdnPgItm").length;
-            var TotalVisible = TotalNumberOfElements - TotalNumberOfHiddenElements;
+        function SetNxtPgnNavBar(Element, SelectedPage, TotalVisible) {
+            debugger
             var From = SelectedPage;
             var To = SelectedPage + (TotalVisible - 1);
             $(Element).parent().children('span:not(.DfltPgnBtn)').addClass("HdnPgItm");
@@ -194,12 +228,8 @@
                 }
             });
         }
-        function SetPrePgnNavBar(Element, SelectedPage) {
-
-            console.log($(Element).parent().children())
-            var TotalNumberOfElements = $(Element).parent().children('span:not(.DfltPgnBtn)').length;
-            var TotalNumberOfHiddenElements = $(Element).parent().children(".HdnPgItm").length;
-            var TotalVisible = TotalNumberOfElements - TotalNumberOfHiddenElements;
+        function SetPrePgnNavBar(Element, SelectedPage, TotalVisible) {
+            debugger
             var From = SelectedPage - (TotalVisible);
             var To = SelectedPage ;
             $(Element).parent().children('span:not(.DfltPgnBtn)').addClass("HdnPgItm");
@@ -209,8 +239,6 @@
                 }
             });
         }
-
-
     </script>
 </body>
 </html>
