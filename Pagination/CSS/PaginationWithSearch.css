@@ -1,1 +1,19 @@
-﻿
+﻿.HdnPgItm {
+    display: none;
+}
+
+.PgnActive {
+    border: 1px solid red;
+}
+
+.PgnBtnDsbld {
+    border: 1px solid blue;
+}
+
+.Unselect {
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -o-user-select: none
+}

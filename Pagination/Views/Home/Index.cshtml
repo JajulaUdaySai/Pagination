@@ -7,30 +7,11 @@
     <title>jQuery Pagination</title>
     <script src="~/Scripts/jquery-1.10.2.min.js"></script>
     <link href="~/CSS/PaginationWithSearch.css" rel="stylesheet" />
-    <style>
-        .HdnPgItm {
-            display: none;
-        }
-
-        .PgnActive {
-            border: 1px solid red;
-        }
-
-        .PgnBtnDsbld {
-            border: 1px solid blue;
-        }
-        .Unselect {
-           -moz-user-select: none;
-           -webkit-user-select: none;
-           -ms-user-select:none;
-           user-select:none;
-           -o-user-select:none
-        }
-    </style>
+    <script src="~/JS/Pagination.js"></script>
 </head>
 <body>
-    <input type="text" placeholder="search" id="SearchBox"/>
-    <div id="contents">
+    <input type="text" placeholder="search" id="SearchBox" />
+    <div id="contents" class="Unselect" unselectable="on" onselectstart="return false;" onmousedown="return false;">
         <div data-Value="1">This Is Number 1</div>
         <div data-Value="1">This Is Number 2</div>
         <div data-Value="1">This Is Number 3</div>
@@ -62,183 +43,18 @@
         <div>This Is Number 29</div>
         <div>This Is Number 30</div>
     </div>
-
+    
     <script>
-        PaginationWithSearch({    
-            ContentID:"contents",
+        PaginationWithSearch({
+            ContentID: "contents",
             UserNumberOfItemVisiblePerPage: 4,
-            NumberOfItemInPaginationNav :4
+            NumberOfItemInPaginationNav: 1
         });
-
-        function PaginationWithSearch(PaginationObject) {                    
-            var searchId = PaginationObject.SearchBoxId;
-            if (searchId != undefined && searchId != null && searchId != "") {
-                var SearchText = $("#" + PaginationObject.SearchBoxId).val().toLowerCase().trim();               
-            }
-            else {
-                $("#" + PaginationObject.ContentID).children().each(function (rev, element) {
-                    $(element).addClass("ItmActive");
-                })
-                Pagination({
-                    ContentID: PaginationObject.ContentID,
-                    UserNumberOfItemVisiblePerPage: PaginationObject.UserNumberOfItemVisiblePerPage,
-                    NumberOfItemInPaginationNav: PaginationObject.NumberOfItemInPaginationNav
-                });
-            }            
-        }
-        function Pagination(PaginationObject) {
-            
-            $("<div id=" + PaginationObject.ContentID + "PaginationNavBar" + " class=\"Unselect\" unselectable=\"on\" onselectstart=\"return false;\" onmousedown=\"return false;\"><div>").insertAfter("#" + PaginationObject.ContentID);
-            //Data Passed By User
-            var UserNumberOfItemVisiblePerPage = PaginationObject.UserNumberOfItemVisiblePerPage;
-            var UserNumberOfItemsInVisibleInPaginationNav = PaginationObject.NumberOfItemInPaginationNav;
-                                
-            var ActualNumberOfItemsShownInNavBar = 0;
-            var ActualNumberOfItemsShown = 0;
-            var NumberOfItemsInPaninationNavNeeded = 0;
-
-            var NumberOfItems = $("#" + PaginationObject.ContentID).children(".ItmActive").length;
-
-            //Calculating NavBar and Items for Pagination
-            if (UserNumberOfItemVisiblePerPage < NumberOfItems)
-            {
-                ActualNumberOfItemsShown = UserNumberOfItemVisiblePerPage;
-                NumberOfItemsInPaninationNavNeeded = Math.ceil(NumberOfItems / UserNumberOfItemVisiblePerPage);
-            }
-            else
-            {
-                ActualNumberOfItemsShown = NumberOfItems;
-                NumberOfItemsInPaninationNavNeeded = 1;
-            }
-            if (UserNumberOfItemsInVisibleInPaginationNav > NumberOfItemsInPaninationNavNeeded) {
-                ActualNumberOfItemsShownInNavBar = NumberOfItemsInPaninationNavNeeded;
-            }
-            else
-            {
-                ActualNumberOfItemsShownInNavBar = UserNumberOfItemsInVisibleInPaginationNav;
-            }
-            $("#" + PaginationObject.ContentID).children(".ItmActive").each(function (rev, element) {
-                if ((rev + 1) > ActualNumberOfItemsShown) {
-                    $(element).addClass("HdnPgItm");
-                }
-                $(element).attr("data-Index", rev + 1)
-            });
-            $("#" + PaginationObject.ContentID + "PaginationNavBar").empty();
-            $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span class=\"DfltPgnBtn PgnBtnDsbld\" onclick=\"PgnPreBtn(event," + NumberOfItems + "," + ActualNumberOfItemsShown + "," + NumberOfItemsInPaninationNavNeeded  + "," + ActualNumberOfItemsShownInNavBar+")\">" + "Previous" + "</span>");
-            $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span data-Index=" + 1 + " onclick=\"ChangePage(event," + NumberOfItems + "," + ActualNumberOfItemsShown + "," + NumberOfItemsInPaninationNavNeeded + "," + ActualNumberOfItemsShownInNavBar +")\" class=\"PgnActive\">" + 1 + "</span>");
-            var CountVisible = 1;
-            for (var i = 2; i <= NumberOfItemsInPaninationNavNeeded; i++) {
-                if (i > ActualNumberOfItemsShownInNavBar) {
-                    $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span data-Index=" + i + " onclick=\"ChangePage(event," + NumberOfItems + "," + ActualNumberOfItemsShown + "," + NumberOfItemsInPaninationNavNeeded + "," + ActualNumberOfItemsShownInNavBar +")\" class=\"HdnPgItm\">" + i + "</span>");
-                }
-                else {
-                    CountVisible++;
-                    $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span data-Index=" + i + " onclick=\"ChangePage(event," + NumberOfItems + "," + ActualNumberOfItemsShown + "," + NumberOfItemsInPaninationNavNeeded + "," + ActualNumberOfItemsShownInNavBar +")\">" + i + "</span>");
-                }
-               
-            }
-            
-            if (NumberOfItemsInPaninationNavNeeded == 1) {
-                $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span class=\"DfltPgnBtn PgnBtnDsbld\" onclick=\"PgnNxtBtn(event," + NumberOfItems + "," + ActualNumberOfItemsShown + "," + NumberOfItemsInPaninationNavNeeded + "," + ActualNumberOfItemsShownInNavBar +")\">" + "Next" + "</span>");
-            }
-            else {
-                $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span class=\"DfltPgnBtn\" onclick=\"PgnNxtBtn(event," + NumberOfItems + "," + ActualNumberOfItemsShown + "," + NumberOfItemsInPaninationNavNeeded + "," + ActualNumberOfItemsShownInNavBar +")\">" + "Next" + "</span>");
-            }           
-        }
-        function ChangePage(event, TotalItem, TotalVisibleItem, TotalItemInNav, TotalVisibleItemInNav) {
-            
-            var Element = event.target;
-            $(Element).siblings().removeClass("PgnActive");
-            $(Element).addClass("PgnActive");
-            var SelectedPage = $(Element).attr("data-Index");
-            SetPageReadyFor(Element, SelectedPage, TotalVisibleItem, TotalItemInNav);
-        }
-        function SetPageReadyFor(Element, SelectedPage, TotalVisible,Total) {
-            var From = (TotalVisible * (SelectedPage - 1)) + 1;
-            var To = From + (TotalVisible - 1);
-            $(Element).parent().prev().children().addClass("HdnPgItm");
-            $(Element).parent().prev().children().each(function (index, element) {
-                if ((index + 1) <= To && (index + 1) >= From) {
-                    $(this).removeClass("HdnPgItm");
-                }
-            });
-            if (SelectedPage == 1) {
-                $(Element).prev(".DfltPgnBtn").addClass("PgnBtnDsbld");
-            }
-            else {
-                $(Element).siblings().prev(".DfltPgnBtn").removeClass("PgnBtnDsbld");
-            }
-            if (Total == SelectedPage) {
-                $(Element).next(".DfltPgnBtn").addClass("PgnBtnDsbld");
-            }
-            else {
-                $(Element).siblings().next(".DfltPgnBtn").removeClass("PgnBtnDsbld");
-            }
-        }
-        function PgnNxtBtn(event, TotalItem, TotalVisibleItem, TotalItemInNav, TotalVisibleItemInNav) {
-            debugger
-            var Element = event.target;
-            if (!$(Element).hasClass("PgnBtnDsbld")) {
-                var Active = parseInt($(Element).siblings(".PgnActive").attr("data-Index"));
-                $(Element).siblings().prev(".DfltPgnBtn").removeClass("PgnBtnDsbld");
-                var Totalitm = $(Element).parent().children('span:not(.DfltPgnBtn)').length;
-                $(Element).siblings().removeClass("PgnActive");
-                $(Element).siblings('[data-Index=' + (Active + 1) + ']').addClass("PgnActive");
-                SetPageReadyFor(Element, Active + 1, TotalVisibleItem, TotalItemInNav);
-                if ($(Element).siblings('[data-Index=' + (Active + 1) + ']').hasClass("HdnPgItm")) {
-                    SetNxtPgnNavBar(Element, Active + 1, TotalVisibleItemInNav);
-                }
-                if ((Totalitm - 1) == Active) {
-                    $(Element).siblings().next(".DfltPgnBtn").addClass("PgnBtnDsbld");
-                }
-                else {
-                    $(Element).siblings().next(".DfltPgnBtn").removeClass("PgnBtnDsbld");
-                }
-            }
-        }
-        function PgnPreBtn(event, TotalItem, TotalVisibleItem, TotalItemInNav, TotalVisibleItemInNav) {
-            debugger
-            var Element = event.target;
-            if (!$(Element).hasClass("PgnBtnDsbld")) {
-                var Active = parseInt($(Element).siblings(".PgnActive").attr("data-Index"));
-                $(Element).siblings().next(".DfltPgnBtn").removeClass("PgnBtnDsbld");
-                $(Element).siblings().removeClass("PgnActive");
-                $(Element).siblings('[data-Index=' + (Active - 1) + ']').addClass("PgnActive");
-                SetPageReadyFor(Element, Active - 1, TotalVisibleItem, TotalItemInNav);
-                if ($(Element).siblings('[data-Index=' + (Active - 1) + ']').hasClass("HdnPgItm")) {
-                    SetPrePgnNavBar(Element, Active -1, TotalVisibleItemInNav);
-                }
-                if ((Active - 1) == 1) {
-                    $(Element).siblings().prev(".DfltPgnBtn").addClass("PgnBtnDsbld");
-                } else {
-                    $(Element).siblings().prev(".DfltPgnBtn").removeClass("PgnBtnDsbld");
-                }
-            }
-
-        }
-
-        function SetNxtPgnNavBar(Element, SelectedPage, TotalVisible) {
-            debugger
-            var From = SelectedPage;
-            var To = SelectedPage + (TotalVisible - 1);
-            $(Element).parent().children('span:not(.DfltPgnBtn)').addClass("HdnPgItm");
-            $(Element).parent().children('span:not(.DfltPgnBtn)').each(function (index, element) {
-                if ((index + 1) <= To && (index + 1) >= From) {
-                    $(this).removeClass("HdnPgItm");
-                }
-            });
-        }
-        function SetPrePgnNavBar(Element, SelectedPage, TotalVisible) {
-            debugger
-            var From = SelectedPage - (TotalVisible);
-            var To = SelectedPage ;
-            $(Element).parent().children('span:not(.DfltPgnBtn)').addClass("HdnPgItm");
-            $(Element).parent().children('span:not(.DfltPgnBtn)').each(function (index, element) {
-                if ((index + 1) <= To && (index + 1) >= From) {
-                    $(this).removeClass("HdnPgItm");
-                }
-            });
-        }
+        PaginationWithSearch({
+            ContentID: "contents1",
+            UserNumberOfItemVisiblePerPage: 4,
+            NumberOfItemInPaginationNav: 1
+        });
     </script>
 </body>
 </html>
