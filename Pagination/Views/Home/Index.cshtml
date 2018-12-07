@@ -7,11 +7,11 @@
     <title>jQuery Pagination</title>
     <script src="~/Scripts/jquery-1.10.2.min.js"></script>
     <link href="~/CSS/PaginationWithSearch.css" rel="stylesheet" />
-    <script src="~/JS/Pagination.js"></script>
+    <script src="~/JS/Pagination.min.js"></script>
 </head>
 <body>
     <input type="text" placeholder="search" id="SearchBox" />
-    <div id="contents" class="Unselect" unselectable="on" onselectstart="return false;" onmousedown="return false;">
+    <div id="contents">
         <div data-Value="1">This Is Number 1</div>
         <div data-Value="1">This Is Number 2</div>
         <div data-Value="1">This Is Number 3</div>
@@ -48,13 +48,8 @@
         PaginationWithSearch({
             ContentID: "contents",
             UserNumberOfItemVisiblePerPage: 4,
-            NumberOfItemInPaginationNav: 1
-        });
-        PaginationWithSearch({
-            ContentID: "contents1",
-            UserNumberOfItemVisiblePerPage: 4,
-            NumberOfItemInPaginationNav: 1
-        });
+            NumberOfItemInPaginationNav: 5
+        });     
     </script>
 </body>
 </html>
