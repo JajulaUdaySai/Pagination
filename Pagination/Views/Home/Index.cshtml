@@ -10,46 +10,22 @@
     <script src="~/JS/Pagination.min.js"></script>
 </head>
 <body>
-    <input type="text" placeholder="search" id="SearchBox" />
-    <div id="contents">
-        <div data-Value="1">This Is Number 1</div>
-        <div data-Value="1">This Is Number 2</div>
-        <div data-Value="1">This Is Number 3</div>
-        <div>This Is Number 4</div>
-        <div>This Is Number 5</div>
-        <div>This Is Number 6</div>
-        <div>This Is Number 7</div>
-        <div>This Is Number 8</div>
-        <div>This Is Number 9</div>
-        <div>This Is Number 10</div>
-        <div>This Is Number 11</div>
-        <div>This Is Number 12</div>
-        <div>This Is Number 13</div>
-        <div>This Is Number 14</div>
-        <div>This Is Number 15</div>
-        <div>This Is Number 16</div>
-        <div>This Is Number 17</div>
-        <div>This Is Number 18</div>
-        <div>This Is Number 19</div>
-        <div>This Is Number 20</div>
-        <div>This Is Number 21</div>
-        <div>This Is Number 22</div>
-        <div>This Is Number 23</div>
-        <div>This Is Number 24</div>
-        <div>This Is Number 25</div>
-        <div>This Is Number 26</div>
-        <div>This Is Number 27</div>
-        <div>This Is Number 28</div>
-        <div>This Is Number 29</div>
-        <div>This Is Number 30</div>
+    <div class="">       
+         <input type="text" placeholder="search" id="SearchBox" />          
     </div>
-    
+    <div id="contents">
+        @for (int i = 1; i <= 30; i++)
+        {
+          <div data-SearchTag="@i">This Is Number @i</div>
+        }
+    </div>
     <script>
         PaginationWithSearch({
             ContentID: "contents",
             UserNumberOfItemVisiblePerPage: 4,
-            NumberOfItemInPaginationNav: 5
-        });     
+            NumberOfItemInPaginationNav: 5,
+            SearchBoxId:"SearchBox"
+        });
     </script>
 </body>
 </html>

@@ -1,22 +1,53 @@
-﻿function PaginationWithSearch(PaginationObject) {
+﻿function PaginationWithSearch(PaginationObject, event) { 
+    RemovePrevSettings(PaginationObject);
+    SetupPagination(PaginationObject);
+    $("#" + PaginationObject.ContentID).css("height", $("#" + PaginationObject.ContentID).height());
+}
+function RemovePrevSettings(PaginationObject) {
+    $("#" + PaginationObject.ContentID + "PaginationNavBar").remove();
+    $("#" + PaginationObject.ContentID).children().each(function (rev, element) {
+        $(element).removeClass("ItmActive");
+        $(element).removeClass("data-Index");
+        $(element).removeClass("HdnPgItm");
+    });
+}
+function SetupPagination(PaginationObject) {
+    $("#" + PaginationObject.ContentID).attr("unselectable", "on");
+    $("#" + PaginationObject.ContentID).attr("onselectstart", "return false");
+    $("#" + PaginationObject.ContentID).attr("onmousedown", "return false");
+    $("#" + PaginationObject.ContentID).addClass("Unselect");
     var searchId = PaginationObject.SearchBoxId;
-    if (searchId !== undefined && searchId !== null && searchId !== "") {
+    if (isNotNull(searchId)) {
+        $("#" + searchId).attr("onkeyup", "PaginationWithSearch({ContentID:'" + PaginationObject.ContentID + "',UserNumberOfItemVisiblePerPage:" + PaginationObject.UserNumberOfItemVisiblePerPage + ",NumberOfItemInPaginationNav:" + PaginationObject.NumberOfItemInPaginationNav + ",SearchBoxId:'" + PaginationObject.SearchBoxId + "'},event)");
         var SearchText = $("#" + PaginationObject.SearchBoxId).val().toLowerCase().trim();
+        if (isNotNull(SearchText)) {
+            $("#" + PaginationObject.ContentID).children().each(function (rev, element) {
+                var Tags = $(element).attr("data-SearchTag");
+                if (isNotNull(Tags)) {
+                    if (Tags.indexOf(SearchText) > -1) {
+                        $(element).addClass("ItmActive");
+                    }
+                }
+            });
+        }
+        else {
+            $("#" + PaginationObject.ContentID).children().each(function (rev, element) {
+                $(element).addClass("ItmActive");
+            });
+        }
     }
     else {
-        $("#" + PaginationObject.ContentID).attr("unselectable", "on");
-        $("#" + PaginationObject.ContentID).attr("onselectstart", "return false");
-        $("#" + PaginationObject.ContentID).attr("onmousedown", "return false");
-        $("#" + PaginationObject.ContentID).addClass("Unselect");
         $("#" + PaginationObject.ContentID).children().each(function (rev, element) {
-            $(element).addClass("ItmActive");          
-        });
-        Pagination({
-            ContentID: PaginationObject.ContentID,
-            UserNumberOfItemVisiblePerPage: PaginationObject.UserNumberOfItemVisiblePerPage,
-            NumberOfItemInPaginationNav: PaginationObject.NumberOfItemInPaginationNav
+            $(element).addClass("ItmActive");
         });
     }
+
+   
+    Pagination({
+        ContentID: PaginationObject.ContentID,
+        UserNumberOfItemVisiblePerPage: PaginationObject.UserNumberOfItemVisiblePerPage,
+        NumberOfItemInPaginationNav: PaginationObject.NumberOfItemInPaginationNav
+    });       
 }
 function Pagination(PaginationObject) {
     $("<div id=" + PaginationObject.ContentID + "PaginationNavBar" + " class=\"Unselect\" unselectable=\"on\" onselectstart=\"return false; \" onmousedown=\"return false;\" ><div>").insertAfter("#" + PaginationObject.ContentID);
@@ -46,31 +77,40 @@ function Pagination(PaginationObject) {
         ActualNumberOfItemsShownInNavBar = UserNumberOfItemsInVisibleInPaginationNav;
     }
     //Setting Index For Every Item 
+    $("#" + PaginationObject.ContentID).children().each(function (rev, element) {
+        $(element).removeAttr("data-Index");
+    });
     $("#" + PaginationObject.ContentID).children(".ItmActive").each(function (rev, element) {
-        if ((rev + 1) > ActualNumberOfItemsShown) {
+        if (ActualNumberOfItemsShown < (rev + 1)) {
             $(element).addClass("HdnPgItm");
-        }
-        $(element).attr("data-Index", rev + 1);
+        }        
+            $(element).attr("data-Index", rev + 1);
+    });
+    $("#" + PaginationObject.ContentID).children(":not(.ItmActive)").each(function (rev, element) {
+         $(element).addClass("HdnPgItm");       
     });
     //Setting Nav Bar for Pagination
-    $("#" + PaginationObject.ContentID + "PaginationNavBar").empty();
-    $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span class=\"DfltPgnBtn PgnBtnDsbld\" onclick=\"PgnPreBtn(event," + NumberOfItems + "," + ActualNumberOfItemsShown + "," + NumberOfItemsInPaninationNavNeeded + "," + ActualNumberOfItemsShownInNavBar + ")\">" + "Previous" + "</span>");
-    $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span data-Index=" + 1 + " onclick=\"ChangePage(event," + NumberOfItems + "," + ActualNumberOfItemsShown + "," + NumberOfItemsInPaninationNavNeeded + "," + ActualNumberOfItemsShownInNavBar + ")\" class=\"PgnActive\">" + 1 + "</span>");
-    for (var i = 2; i <= NumberOfItemsInPaninationNavNeeded; i++) {
-        if (i > ActualNumberOfItemsShownInNavBar) {
-            $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span data-Index=" + i + " onclick=\"ChangePage(event," + NumberOfItems + "," + ActualNumberOfItemsShown + "," + NumberOfItemsInPaninationNavNeeded + "," + ActualNumberOfItemsShownInNavBar + ")\" class=\"HdnPgItm\">" + i + "</span>");
-        }
-        else {           
-            $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span data-Index=" + i + " onclick=\"ChangePage(event," + NumberOfItems + "," + ActualNumberOfItemsShown + "," + NumberOfItemsInPaninationNavNeeded + "," + ActualNumberOfItemsShownInNavBar + ")\">" + i + "</span>");
-        }
+    if (ActualNumberOfItemsShown !== 0) {
+        $("#" + PaginationObject.ContentID + "PaginationNavBar").empty();
+        $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span class=\"DfltPgnBtn PgnBtnDsbld PgnPrevBtn\" onclick=\"PgnPreBtn(event," + NumberOfItems + "," + ActualNumberOfItemsShown + "," + NumberOfItemsInPaninationNavNeeded + "," + ActualNumberOfItemsShownInNavBar + ")\">" + "Previous" + "</span>");
+        $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span data-Index=" + 1 + " onclick=\"ChangePage(event," + NumberOfItems + "," + ActualNumberOfItemsShown + "," + NumberOfItemsInPaninationNavNeeded + "," + ActualNumberOfItemsShownInNavBar + ")\" class=\"PgnActive PgnBtn\">" + 1 + "</span>");
+        for (var i = 2; i <= NumberOfItemsInPaninationNavNeeded; i++) {
+            if (i > ActualNumberOfItemsShownInNavBar) {
+                $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span data-Index=" + i + " onclick=\"ChangePage(event," + NumberOfItems + "," + ActualNumberOfItemsShown + "," + NumberOfItemsInPaninationNavNeeded + "," + ActualNumberOfItemsShownInNavBar + ")\" class=\"HdnPgItm PgnBtn\">" + i + "</span>");
+            }
+            else {
+                $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span data-Index=" + i + " onclick=\"ChangePage(event," + NumberOfItems + "," + ActualNumberOfItemsShown + "," + NumberOfItemsInPaninationNavNeeded + "," + ActualNumberOfItemsShownInNavBar + ")\" class=\"PgnBtn\">" + i + "</span>");
+            }
 
+        }
+        if (NumberOfItemsInPaninationNavNeeded === 1) {
+            $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span class=\"DfltPgnBtn PgnBtnDsbld PgnNxtBtn\" onclick=\"PgnNxtBtn(event," + NumberOfItems + "," + ActualNumberOfItemsShown + "," + NumberOfItemsInPaninationNavNeeded + "," + ActualNumberOfItemsShownInNavBar + ")\">" + "Next" + "</span>");
+        }
+        else {
+            $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span class=\"DfltPgnBtn PgnNxtBtn\" onclick=\"PgnNxtBtn(event," + NumberOfItems + "," + ActualNumberOfItemsShown + "," + NumberOfItemsInPaninationNavNeeded + "," + ActualNumberOfItemsShownInNavBar + ")\">" + "Next" + "</span>");
+        }
     }
-    if (NumberOfItemsInPaninationNavNeeded === 1) {
-        $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span class=\"DfltPgnBtn PgnBtnDsbld\" onclick=\"PgnNxtBtn(event," + NumberOfItems + "," + ActualNumberOfItemsShown + "," + NumberOfItemsInPaninationNavNeeded + "," + ActualNumberOfItemsShownInNavBar + ")\">" + "Next" + "</span>");
-    }
-    else {
-        $("#" + PaginationObject.ContentID + "PaginationNavBar").append("<span class=\"DfltPgnBtn\" onclick=\"PgnNxtBtn(event," + NumberOfItems + "," + ActualNumberOfItemsShown + "," + NumberOfItemsInPaninationNavNeeded + "," + ActualNumberOfItemsShownInNavBar + ")\">" + "Next" + "</span>");
-    }
+    
 }
 //On Page Change
 function ChangePage(event, TotalItem, TotalVisibleItem, TotalItemInNav, TotalVisibleItemInNav) {
@@ -86,7 +126,8 @@ function SetPageReadyFor(Element, SelectedPage, TotalVisible, Total) {
     var To = From + (TotalVisible - 1);
     $(Element).parent().prev().children().addClass("HdnPgItm");
     $(Element).parent().prev().children().each(function (index, element) {
-        if ((index + 1) <= To && (index + 1) >= From) {
+        var ThisEle =  parseInt($(element).attr("data-Index"));
+        if (ThisEle <= To && ThisEle >= From) {
             $(this).removeClass("HdnPgItm");
         }
     });
@@ -166,4 +207,14 @@ function EnableOrDisableNextAndPrev(Element, SelectedPage, Total) {
     else {
         $(Element).siblings().next(".DfltPgnBtn").removeClass("PgnBtnDsbld");
     }
+}
+function isNotNull(searchId) {
+    var IsErr = false;
+    if (searchId !== undefined && searchId !== null && searchId !== "") {
+        IsErr = true;
+    }
+    else {
+        IsErr = false;
+    }
+    return IsErr;
 }
