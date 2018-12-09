@@ -3,12 +3,44 @@
 }
 
 .PgnActive {
-    border: 1px solid red;
+    border: 2px solid #fa7743;
+    background-color: #fa7743 !important;
 }
 
-.PgnBtnDsbld {
-    border: 1px solid blue;
+.PgnBtn {
+    border-radius: 50%;
+    color: white;
+    background-color: orange;
+    margin: 2px;
+    padding: 0px 7px 1px 7px;
+    font-size: 18px;
 }
+    .PgnBtn:hover {
+        cursor: pointer;
+        background-color: #fa7743;
+    }
+.PGNdiv{
+   align-self:center;
+}
+.PgnBtnDsbld {
+    background-color: #bccfe7 !important;
+    cursor: default !important;
+}
+.PgnBtnDsbld :hover{
+    background-color: #bccfe7 !important;
+}
+.DfltPgnBtn {
+    border-radius: 50%;
+    color: white;
+    background-color: orange;
+    margin: 2px;
+    padding: 0px 7px 1px 7px;
+    font-size: 18px;
+}
+    .DfltPgnBtn:hover {
+        cursor: pointer;
+        background-color: orange;
+    }
 
 .Unselect {
     -moz-user-select: none;
@@ -17,6 +49,39 @@
     user-select: none;
     -o-user-select: none
 }
-#SearchBox{
-
+.search {
+    margin: 0 auto;
+    width:30% !important;
 }
+.navBar {
+    background: black;
+    padding: 5px;
+}
+.Heading1{
+    color:white;
+    font-size:20px
+}
+.Heading1:hover {
+    cursor:default;
+}
+.Container {
+    margin: 0 auto;
+    width:100%;
+}
+.Images{
+ width:300px;
+ padding:10px !important;
+}
+.ZeroPadding{
+    padding:0;
+}
+.SharpBorders{
+    border-radius:0px !important;
+}
+.PGNdiv{
+    margin:0 auto;
+}
+.FullBox {
+   
+}
+
