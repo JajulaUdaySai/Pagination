@@ -23,8 +23,6 @@
                 <a class="navbar-brand active" href="#">Pagination Using JQuery</a>
             </div>
             <ul class="nav navbar-nav">
-                @*<li><a href="#">Page 1</a></li>
-                <li><a href="#">Page 2</a></li>*@
             </ul>          
         </div>
     </nav>
@@ -34,11 +32,11 @@
                 <input type="text" class="form-control search" placeholder="Search" id="SearchBox">
             </div>
         </div>
-        <div id="contents" style="height:420px">
+        <div id="contents" class="container" style="height:420px">
             @for (int i = 1; i <= 10; i++)
             {
                 string j = i + ".jpg";
-                    <img src="~/Images/@j" class="Images col-lg-3 col-md-1 col-sm-1"  data-SearchTag="@i"/>
+                    <img src="~/Images/@j" class="Images col-lg-3 col-md-6 col-sm-12"  data-SearchTag="@i"/>
             }
         </div>
     </div>
@@ -51,7 +49,7 @@
                 ItemsInPaginationNav: 5,
                 SearchBoxId: "SearchBox"
             });
-        });       
+        });
     </script>
 </body>
 </html>
